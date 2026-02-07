@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be My Valentine? 💖</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ffeef8 0%, #ffe0f0 50%, #ffd6eb 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Canvas for animated background */
+        #background-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Container */
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        /* Card styles */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 60px 40px;
+            box-shadow: 0 20px 60px rgba(255, 105, 180, 0.3);
+            text-align: center;
+            animation: fadeInScale 0.8s ease-out;
+            display: none;
+        }
+
+        .card.active {
+            display: block;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .card h1 {
+            font-size: 2.5em;
+            color: #e91e63;
+            margin-bottom: 30px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .card p {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        /* Button styles */
+        .btn {
+            background: linear-gradient(135deg, #ff6b9d 0%, #e91e63 100%);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(233, 30, 99, 0.4);
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(233, 30, 99, 0.5);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #b0bec5 0%, #90a4ae 100%);
+            box-shadow: 0 10px 30px rgba(144, 164, 174, 0.4);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 15px 40px rgba(144, 164, 174, 0.5);
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-green:hover {
+            box-shadow: 0 15px 40px rgba(76, 175, 80, 0.5);
+        }
+
+        /* Final proposal card */
+        #final-card .heart-icon {
+            font-size: 80px;
+            animation: heartbeat 1.5s infinite;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.15); }
+        }
+
+        .cursive {
+            font-family: 'Playfair Display', 'Didot', 'Times New Roman', serif;
+            font-size: 3.2em;
+            color: #e91e63;
+            margin: 20px 0;
+            font-weight: 400;
+            font-style: italic;
+            letter-spacing: 0.5px;
+            line-height: 1.3;
+            text-shadow: 1px 1px 3px rgba(233, 30, 99, 0.15);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: #999;
+            margin-bottom: 30px;
+        }
+
+        /* Journey page styles */
+        .journey-timeline {
+            text-align: left;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .journey-item {
+            margin-bottom: 30px;
+            padding-left: 40px;
+            position: relative;
+            animation: slideInLeft 0.6s ease-out;
+        }
+
+        .journey-item::before {
+            content: '💖';
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 1.5em;
+        }
+
+        .journey-item h3 {
+            color: #e91e63;
+            margin-bottom: 8px;
+            font-size: 1.3em;
+        }
+
+        .journey-item p {
+            font-size: 1em;
+            color: #666;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Scrollbar styling */
+        .journey-timeline::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .journey-timeline::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .journey-timeline::-webkit-scrollbar-thumb {
+            background: #ff6b9d;
+            border-radius: 10px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .card {
+                padding: 40px 25px;
+            }
+
+            .card h1 {
+                font-size: 1.8em;
+            }
+
+            .cursive {
+                font-size: 2.2em;
+            }
+
+            .btn {
+                padding: 15px 35px;
+                font-size: 1.1em;
+            }
+
+            .journey-item {
+                padding-left: 35px;
+            }
+        }
+
+        /* Success message */
+        .success-message {
+            animation: bounceIn 1s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ff6b9d;
+            position: absolute;
+            animation: confetti-fall 3s linear infinite;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated background canvas -->
+    <canvas id="background-canvas"></canvas>
+
+    <div class="container">
+        <!-- Card 1: Hey Beautiful -->
+        <div class="card active" id="card1">
+            <h1>Hey Beautiful, Mansi... ✨</h1>
+            <button class="btn" onclick="nextCard(2)">Click Me</button>
+        </div>
+
+        <!-- Card 2: We've made memories -->
+        <div class="card" id="card2">
+            <h1>We've made so many memories... 💭</h1>
+            <button class="btn" onclick="nextCard(3)">Click Me</button>
+        </div>
+
+        <!-- Card 3: Journey Together -->
+        <div class="card" id="card3">
+            <h1>Our Journey Together 💕</h1>
+            <div class="journey-timeline">
+                <div class="journey-item">
+                    <h3>First Meeting - 15th December</h3>
+                    <p>We first met at a cafe. We had a long good talk. At first we both were nervous but we had good laughter together.</p>
+                </div>
+                <div class="journey-item">
+                    <h3>Growing Closer</h3>
+                    <p>After then we met multiple times, creating memories that I'll cherish forever.</p>
+                </div>
+                <div class="journey-item">
+                    <h3>Christmas Together 🎄</h3>
+                    <p>We celebrated Christmas together - one of the most special moments of my life.</p>
+                </div>
+                <div class="journey-item">
+                    <h3>Endless Conversations</h3>
+                    <p>Those endless talks in calls, North Indian vs Italian food fights, and me trying to annoy you with Varun Dhawan's memes! 😄</p>
+                </div>
+                <div class="journey-item">
+                    <h3>Best Birthday Surprise</h3>
+                    <p>The best birthday surprise for me and that beautiful evening which we spent together. A moment I'll never forget.</p>
+                </div>
+                <div class="journey-item">
+                    <h3>And Beyond... ✨</h3>
+                    <p>For all those moments which we have created and will create in future. It's been a beautiful journey so far...</p>
+                </div>
+            </div>
+            <button class="btn" onclick="nextCard(4)" style="margin-top: 20px;">Continue</button>
+        </div>
+
+        <!-- Card 4: So I have a question -->
+        <div class="card" id="card4">
+            <h1>So I have a question... 💝</h1>
+            <button class="btn" onclick="nextCard(5)">Click Me</button>
+        </div>
+
+        <!-- Card 6: Final Proposal -->
+        <div class="card" id="final-card">
+            <div class="heart-icon">❤️</div>
+            <h1 class="cursive">Will you be my Valentine, Mansi?</h1>
+            <p class="subtitle">(I promise to buy you chocolate 🍫)</p>
+            <div>
+                <button class="btn btn-green" onclick="handleYes()">YES!</button>
+                <button class="btn btn-secondary" onclick="handleNo()">No</button>
+            </div>
+        </div>
+
+        <!-- Success Card -->
+        <div class="card" id="success-card">
+            <div class="success-message">
+                <h1 style="font-size: 3em;">🎉 Yay! 🎉</h1>
+                <h2 style="color: #e91e63; margin: 20px 0;">You've made me the happiest person alive!</h2>
+                <p style="font-size: 1.3em; margin: 20px 0;">I can't wait to create more beautiful memories with you, Mansi! ❤️</p>
+                <p style="font-size: 1.1em; color: #999;">Happy Valentine's Day! 💕</p>
+                <div style="margin-top: 30px; padding: 25px; background: rgba(233, 30, 99, 0.05); border-radius: 15px; border-left: 4px solid #e91e63;">
+                    <p style="font-size: 1.15em; color: #555; font-style: italic; line-height: 1.8; margin: 0;">
+                        "In all the world, there is no heart for me like yours.<br>
+                        In all the world, there is no love for you like mine."
+                    </p>
+                    <p style="font-size: 0.9em; color: #999; margin-top: 10px; margin-bottom: 0;">— Maya Angelou</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Animated background with hearts and sparkles
+        const canvas = document.getElementById('background-canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        class Particle {
+            constructor() {
+                this.reset();
+                this.y = Math.random() * canvas.height;
+                this.opacity = Math.random();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = -20;
+                this.speed = 0.5 + Math.random() * 1.5;
+                this.size = 15 + Math.random() * 15;
+                this.swing = Math.random() * 0.5 - 0.25;
+                this.opacity = 0.3 + Math.random() * 0.5;
+                this.type = Math.random() > 0.7 ? 'sparkle' : 'heart';
+            }
+
+            update() {
+                this.y += this.speed;
+                this.x += Math.sin(this.y * 0.01) * this.swing;
+                
+                if (this.y > canvas.height + 20) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                
+                if (this.type === 'heart') {
+                    // Draw heart
+                    ctx.fillStyle = '#ff6b9d';
+                    ctx.translate(this.x, this.y);
+                    
+                    const scale = this.size / 30;
+                    ctx.scale(scale, scale);
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.bezierCurveTo(-15, -15, -30, -5, -15, 10);
+                    ctx.lineTo(0, 20);
+                    ctx.lineTo(15, 10);
+                    ctx.bezierCurveTo(30, -5, 15, -15, 0, 0);
+                    ctx.fill();
+                } else {
+                    // Draw sparkle
+                    ctx.fillStyle = '#fff';
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.y * 0.02);
+                    
+                    for (let i = 0; i < 4; i++) {
+                        ctx.rotate(Math.PI / 2);
+                        ctx.beginPath();
+                        ctx.moveTo(0, 0);
+                        ctx.lineTo(2, this.size / 3);
+                        ctx.lineTo(0, this.size / 2);
+                        ctx.lineTo(-2, this.size / 3);
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+                }
+                
+                ctx.restore();
+            }
+        }
+
+        const particles = [];
+        for (let i = 0; i < 50; i++) {
+            particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Card navigation
+        let currentCard = 1;
+
+        function nextCard(cardNumber) {
+            document.getElementById(`card${currentCard}`).classList.remove('active');
+            
+            if (cardNumber === 5) {
+                document.getElementById('final-card').classList.add('active');
+            } else {
+                document.getElementById(`card${cardNumber}`).classList.add('active');
+                currentCard = cardNumber;
+            }
+        }
+
+        function handleYes() {
+            document.getElementById('final-card').classList.remove('active');
+            document.getElementById('success-card').classList.add('active');
+            createConfetti();
+        }
+
+        function handleNo() {
+            const noBtn = event.target;
+            const randomX = Math.random() * (window.innerWidth - 200);
+            const randomY = Math.random() * (window.innerHeight - 100);
+            
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = randomX + 'px';
+            noBtn.style.top = randomY + 'px';
+            noBtn.style.transition = 'none';
+            
+            setTimeout(() => {
+                noBtn.style.position = 'relative';
+                noBtn.style.left = 'auto';
+                noBtn.style.top = 'auto';
+            }, 1000);
+        }
+
+        function createConfetti() {
+            const colors = ['#ff6b9d', '#e91e63', '#f06292', '#ec407a', '#ad1457'];
+            
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 30);
+            }
+        }
+    </script>
+</body>
+</html>
